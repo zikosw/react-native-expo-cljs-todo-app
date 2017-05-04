@@ -58,15 +58,21 @@
 
 (reg-event-db
   :toggle-todo
-  []
+  [validate-spec]
   (fn [db [_ todo]]
     (let [todo-id (:todo/id todo)]
       (update-in db [:todo/todos todo-id :todo/done] not))))
 
 (reg-event-db
   :remove-todo
-  []
+  [validate-spec]
   (fn [db [_ todo]]
     (let [todo-id (:todo/id todo)]
       (assoc db :todo/todos (-> (get db :todo/todos)
                                 (dissoc todo-id))))))
+
+(reg-event-db
+  :set-showing
+  [validate-spec]
+  (fn [db [_ showing]]
+    (assoc db :todo/showing showing)))
