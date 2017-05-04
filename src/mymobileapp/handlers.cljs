@@ -25,6 +25,15 @@
                    context)))
     ->interceptor))
 
+;; -- Helpers -----------------------------------------------------------------
+
+(defn allocate-next-id
+  "Returns the next todo id.
+  Assumes todos are sorted.
+  Returns one more than the current largest id."
+  [todos]
+  ((fnil inc 0) (last (keys todos))))
+
 ;; -- Handlers --------------------------------------------------------------
 
 (reg-event-db
@@ -33,23 +42,31 @@
   (fn [_ _]
     app-db))
 
-(reg-event-db
-  :set-greeting
-  [validate-spec]
-  (fn [db [_ value]]
-    (assoc db :greeting value)))
+(defn add-todo [db text]
+  (let [todos (:todo/todos db)
+        new-todo-id (allocate-next-id todos)]
+    (assoc-in db [:todo/todos new-todo-id]
+              #:todo{:id new-todo-id
+                     :title text
+                     :done false})))
 
 (reg-event-db
   :add-todo
-  []
+  [validate-spec]
   (fn [db [_ text]]
-    (update-in db [:todos]
-               #(conj % #:todo{:text text
-                               :completed? false}))))
+    (add-todo db text)))
 
 (reg-event-db
   :toggle-todo
   []
-  (fn [db [_ todo-id]]
-    (update-in db [:todos todo-id :todo/completed?] not)))
+  (fn [db [_ todo]]
+    (let [todo-id (:todo/id todo)]
+      (update-in db [:todo/todos todo-id :todo/done] not))))
 
+(reg-event-db
+  :remove-todo
+  []
+  (fn [db [_ todo]]
+    (let [todo-id (:todo/id todo)]
+      (assoc db :todo/todos (-> (get db :todo/todos)
+                                (dissoc todo-id))))))

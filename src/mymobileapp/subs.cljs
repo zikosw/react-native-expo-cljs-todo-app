@@ -1,12 +1,20 @@
 (ns mymobileapp.subs
-  (:require [re-frame.core :refer [reg-sub]]))
+  (:require [re-frame.core :refer [reg-sub subscribe]]))
 
 (reg-sub
- :get-greeting
- (fn [db _]
-   (:greeting db)))
-
-(reg-sub
-  :todos
+  :todo/filter
   (fn [db _]
-    (:todos db)))
+    (:todo/todos db)))
+
+(reg-sub
+  :todo/todos
+  (fn [db _]
+    (:todo/todos db)))
+
+(reg-sub
+  :todo/visible-todos
+  (fn [query _]
+    [(subscribe [:todo/todos])
+     (subscribe [:todo/filter])])
+  (fn [[todos filter] _]
+    todos))
