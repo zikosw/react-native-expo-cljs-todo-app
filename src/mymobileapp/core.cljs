@@ -23,13 +23,15 @@
         [text {} todo]
         [todo-del-btn todo]]]))
 
-(defn showing-button [showing title]
+(defn showing-button [{:keys [showing value]} title]
   [touchable-highlight
-   {:onPress #(dispatch [:set-showing showing])}
+   {:onPress #(dispatch [:set-showing value])
+    :style {:background-color (if (= showing value) "blue" "white")}}
    [text title]])
 
 (defn app-root []
-  (let [todos (subscribe [:todo/visible-todos])]
+  (let [todos (subscribe [:todo/visible-todos])
+        showing (subscribe [:todo/showing])]
     (fn []
       [view {:style {:flex-direction "column" :margin-top 40 :align-items "center"}}
        [text {:style {:font-size 30 :font-weight "100" :margin-bottom 10 :text-align "center"}} "Todo"]
@@ -41,12 +43,15 @@
                     :onSubmitEditing #(dispatch [:add-todo (.-text (.-nativeEvent %))])}]
        ;; Todo list
        (for [todo @todos]
-         [todo-item {:key (key todo) :data (val todo)}])
+         [todo-item {:key (:todo/id todo) :data todo}])
        ;; Filter
        [view {:style {:flex-direction "row" :justify-content "space-around" :align-self "stretch"}}
-        [showing-button :all "All"]
-        [showing-button :active "Active"]
-        [showing-button :done "Done"]]])))
+        [showing-button {:value :all :showing @showing}
+          "All"]
+        [showing-button {:value :active :showing @showing}
+          "Active"]
+        [showing-button {:value :done :showing @showing}
+          "Done"]]])))
 
 (defn init []
   (dispatch-sync [:initialize-db])

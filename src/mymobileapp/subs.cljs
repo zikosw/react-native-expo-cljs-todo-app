@@ -4,17 +4,24 @@
 (reg-sub
   :todo/showing
   (fn [db _]
-    (:todo/todos db)))
+    (:todo/showing db)))
 
 (reg-sub
   :todo/todos
   (fn [db _]
-    (:todo/todos db)))
+    (vals (:todo/todos db)))) ;; use vals with sorted map to extract val
 
 (reg-sub
   :todo/visible-todos
   (fn [query _]
     [(subscribe [:todo/todos])
      (subscribe [:todo/showing])])
-  (fn [[todos filter] _]
-    todos))
+
+  ;; Filter todo by showing
+  (fn [[todos showing] _]
+    (let [filter-fn (case showing
+                      :active (complement :todo/done)
+                      :done   :todo/done
+                      :all    identity)]
+      (let [res (filter filter-fn todos)]
+        res))))
