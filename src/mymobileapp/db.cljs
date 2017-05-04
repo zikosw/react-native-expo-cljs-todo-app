@@ -9,5 +9,5 @@
 (s/def ::app-db
   (s/keys :req [:todo/todos :todo/filter]))
 ;; initial state of app-db
-(def app-db {:todo/todos {}
+(def app-db {:todo/todos (sorted-map)
              :todo/filter :all})
