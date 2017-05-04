@@ -40,16 +40,16 @@
     (assoc db :greeting value)))
 
 (reg-event-db
-  :edit-new-todo
-  []
-  (fn [db [_ value]]
-    (assoc db :todo value)))
-
-(reg-event-db
   :add-todo
   []
   (fn [db [_ text]]
-    (assoc db :todos
-              (-> db
-                 (get :todos)
-                 (conj text)))))
+    (update-in db [:todos]
+               #(conj % #:todo{:text text
+                               :completed? false}))))
+
+(reg-event-db
+  :toggle-todo
+  []
+  (fn [db [_ todo-id]]
+    (update-in db [:todos todo-id :todo/completed?] not)))
+

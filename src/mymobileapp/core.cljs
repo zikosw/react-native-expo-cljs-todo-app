@@ -10,7 +10,9 @@
   (.alert rn/alert title))
 
 (defn todo-item [attr child]
-  [text {:key (:key attr)} child])
+  [touchable-highlight {:on-press #(dispatch [:toggle-todo (:key attr)])}
+    [view
+      [text {:key (:key attr)} child]]])
 
 (defn app-root []
   (let [todos (subscribe [:todos])]

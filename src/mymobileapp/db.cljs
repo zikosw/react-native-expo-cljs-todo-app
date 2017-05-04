@@ -8,4 +8,4 @@
 
 ;; initial state of app-db
 (def app-db {:greeting "Hello Clojurescript in Exponent!"
-             :todo ""})
+             :todos []})
