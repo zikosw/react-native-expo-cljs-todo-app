@@ -8,15 +8,15 @@
 
 (defn todo-del-btn [todo]
   [touchable-highlight
-    {:style {:background-color "red"}
+    {:style {:background-color "lightpink"}
      :onPress #(dispatch [:remove-todo todo])}
-    [text " X "]])
+    [text {:style {:padding 5}} "X"]])
 
 (defn todo-item [attr]
   (let [todo (:data attr)]
     [touchable-highlight
       {:onPress #(dispatch [:toggle-todo todo])
-       :style {:align-self "stretch"}}
+       :underlayColor "aquamarine"}
       [view {:style {:flex-direction "row"
                      :justify-content "space-around"
                      :margin-bottom 5}}
@@ -26,26 +26,30 @@
 (defn showing-button [{:keys [showing value]} title]
   [touchable-highlight
    {:onPress #(dispatch [:set-showing value])
-    :style {:background-color (if (= showing value) "blue" "white")}}
-   [text title]])
+    :underlayColor "steelblue"
+    :style {:flex 1
+            :padding 10
+            :background-color (if (= showing value) "skyblue" "white")}}
+   [text
+    {:style {:text-align "center"}}
+    title]])
 
 (defn app-root []
   (let [todos (subscribe [:todo/visible-todos])
         showing (subscribe [:todo/showing])]
     (fn []
-      [view {:style {:flex-direction "column" :margin-top 40 :align-items "center"}}
+      [view {:style {:flex-direction "column" :margin 10 :margin-top 30 :align-items "center"}}
        [text {:style {:font-size 30 :font-weight "100" :margin-bottom 10 :text-align "center"}} "Todo"]
        ;; New todo
-       [text-input {:style {:width 200
-                            :height 40
-                            :text-align "center"}
+       [text-input {:style {:width 200 :height 40 :text-align "center"}
                     :autoFocus true
                     :onSubmitEditing #(dispatch [:add-todo (.-text (.-nativeEvent %))])}]
        ;; Todo list
-       (for [todo @todos]
-         [todo-item {:key (:todo/id todo) :data todo}])
+       [view {:style {:flex-direction "column"}}
+         (for [todo @todos]
+           [todo-item {:key (:todo/id todo) :data todo}])]
        ;; Filter
-       [view {:style {:flex-direction "row" :justify-content "space-around" :align-self "stretch"}}
+       [view {:style {:flex-direction "row" :margin-top 20}}
         [showing-button {:value :all :showing @showing}
           "All"]
         [showing-button {:value :active :showing @showing}
