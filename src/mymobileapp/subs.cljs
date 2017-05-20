@@ -23,5 +23,5 @@
                       :active (complement :todo/done)
                       :done   :todo/done
                       :all    identity)]
-      (let [res (filter filter-fn todos)]
-        res))))
+      (filter filter-fn todos))))
+        
